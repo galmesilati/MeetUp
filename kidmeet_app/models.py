@@ -1,0 +1,133 @@
+import datetime
+
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.contrib.auth.models import User
+
+# Create your models here.
+
+
+class Address(models.Model):
+    city = models.CharField(max_length=128, db_column="city", null=False, blank=False)
+    street = models.CharField(max_length=128, db_column="street", null=False, blank=False)
+    building_number = models.CharField(max_length=20, db_column="building_number", null=True, blank=True)
+    floor_number = models.IntegerField(db_column="floor_number", null=True, blank=True)
+    apartment_number = models.IntegerField(db_column="apartment_number", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.street}, {self.building_number}, {self.city}"
+
+    class Meta:
+        db_table = 'address'
+
+
+# validators
+def validate_birth_date(val):
+    if datetime.datetime.today().year - val < 5:
+        raise ValidationError("Actor must be at least 5 years old")
+
+
+class UserDetails(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=20, db_column="phone_number", null=False, blank=False)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    birth_year = models.IntegerField(db_column='birth_year', null=False, validators=[validate_birth_date])
+
+    def __str__(self):
+        return self.user.name
+
+    class Meta:
+        db_table = 'user_details'
+
+
+class Child(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    child_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=128, db_column="child_name", null=False, blank=False)
+    age = models.IntegerField()
+    interests = models.ManyToManyField('Interests', through='ChildInterests')
+    events = models.ManyToManyField('Event', through='ChildEvent')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'children'
+
+
+class Event(models.Model):
+    event_id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=128, db_column="title", null=False, blank=False)
+    description = models.TextField(db_column='description', null=True, blank=False)
+    start_time = models.DateTimeField(db_column="start_event", auto_now_add=True, null=False, blank=False)
+    end_time = models.DateTimeField(db_column="end_event", auto_now_add=True, null=False, blank=False)
+    place = models.CharField(max_length=128, db_column="location", null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        db_table = 'event'
+
+
+class ChildEvent(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.child.name} in event {self.event.name}"
+
+    class Meta:
+        db_table = 'child_event'
+
+
+class Interests(models.Model):
+    interest_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=128, db_column="name", null=False, blank=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'interests'
+
+
+class ChildInterests(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+    interest = models.ForeignKey(Interests, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.child.name} the kid's area of interest: {self.interest.name}"
+
+    class Meta:
+        db_table = 'children_interests'
+
+
+class Schedule(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+    day_of_week = models.CharField(max_length=50, db_column="weekly_schedule", null=False, blank=False)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    type_activity = models.CharField(max_length=128, db_column="type_activity", null=False, blank=False)
+
+    def __str__(self):
+        return f"Child: {self.child.name} schedule"
+
+    class Meta:
+        db_table = 'schedule'
+
+
+class Friendship(models.Model):
+    kindergarten = models.CharField(max_length=128, db_column="kindergarten", null=True, blank=True)
+    school = models.CharField(max_length=128, db_column="school", null=True, blank=True)
+    classroom = models.CharField(max_length=128, db_column="classroom", null=True, blank=True)
+    child1 = models.ForeignKey(Child, related_name="friendship_child1", on_delete=models.CASCADE)
+    child2 = models.ForeignKey(Child, related_name="friendship_child2", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"We found a joint membership of {self.child1.name} with {self.child2.name}"
+
+    class Meta:
+        db_table = 'friendship'
+
+
