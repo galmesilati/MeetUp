@@ -23,8 +23,8 @@ class Address(models.Model):
 
 # validators
 def validate_birth_date(val):
-    if datetime.datetime.today().year - val < 5:
-        raise ValidationError("Actor must be at least 5 years old")
+    if datetime.datetime.today().year - val < 18:
+        raise ValidationError("User must be at least 18 years old")
 
 
 class UserDetails(models.Model):
@@ -32,6 +32,7 @@ class UserDetails(models.Model):
     phone_number = models.CharField(max_length=20, db_column="phone_number", null=False, blank=False)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     birth_year = models.IntegerField(db_column='birth_year', null=False, validators=[validate_birth_date])
+    # profile_pic_url = models.CharField(max_length=1024, null=True, blank=True)
 
     def __str__(self):
         return self.user.name
@@ -41,10 +42,10 @@ class UserDetails(models.Model):
 
 
 class Child(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)
     child_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=128, db_column="child_name", null=False, blank=False)
-    age = models.IntegerField()
+    age = models.FloatField()
     interests = models.ManyToManyField('Interests', through='ChildInterests')
     events = models.ManyToManyField('Event', through='ChildEvent')
 
