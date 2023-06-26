@@ -20,7 +20,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/meetup/', include('kidmeet_app.urls.auth')),
-    path('api/children/', include('kidmeet_app.urls.children')),
-    # path('api/users_parents/', include('kidmeet_app.urls.users_parents'))
+    path('api/meetup/', include('kidmeet_app.urls.children')),
+    # path('api/meetup/', include('kidmeet_app.urls.users_parents'))
 
 ]

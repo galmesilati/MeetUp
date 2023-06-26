@@ -10,12 +10,11 @@ from django.contrib.auth.models import User
 class Address(models.Model):
     city = models.CharField(max_length=128, db_column="city", null=False, blank=False)
     street = models.CharField(max_length=128, db_column="street", null=False, blank=False)
-    building_number = models.CharField(max_length=20, db_column="building_number", null=True, blank=True)
+    house_number = models.CharField(max_length=20, db_column="house_number", null=False, blank=False)
     floor_number = models.IntegerField(db_column="floor_number", null=True, blank=True)
-    apartment_number = models.IntegerField(db_column="apartment_number", null=True, blank=True)
 
     def __str__(self):
-        return f"{self.street}, {self.building_number}, {self.city}"
+        return f"{self.street}, {self.house_number}, {self.city}"
 
     class Meta:
         db_table = 'address'
@@ -28,11 +27,10 @@ def validate_birth_date(val):
 
 
 class UserDetails(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
     phone_number = models.CharField(max_length=20, db_column="phone_number", null=False, blank=False)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    address = models.ForeignKey(Address, on_delete=models.RESTRICT)
     birth_year = models.IntegerField(db_column='birth_year', null=False, validators=[validate_birth_date])
-    # profile_pic_url = models.CharField(max_length=1024, null=True, blank=True)
 
     def __str__(self):
         return self.user.name

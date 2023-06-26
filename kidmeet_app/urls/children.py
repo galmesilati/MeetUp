@@ -7,7 +7,8 @@ router = DefaultRouter()
 router.register('', ChildViewSet)
 
 urlpatterns = [
-    path('child/', include(router.urls))
+    path('children/', include(router.urls))
+
 ]
 
 
