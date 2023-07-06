@@ -29,12 +29,11 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         return new_user_details
 
 
-class AdressSerializer(serializers.ModelSerializer):
+class AddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Address
         fields = '__all__'
-
 
     def save(self, **kwargs):
         address = Address(
@@ -46,3 +45,6 @@ class AdressSerializer(serializers.ModelSerializer):
 
         address.save()
         return address
+
+
+
