@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from kidmeet_app.models import UserDetails, Address
+from kidmeet_app.serializers.auth import UserSerializer
 
 
 class ParentsSerializer(serializers.ModelSerializer):
@@ -11,22 +12,22 @@ class ParentsSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name']
 
 
-class UserDetailsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserDetails
-        fields = '__all__'
-
-    def save(self, address, **kwargs):
-        print('address:', address, 'kwargs:', kwargs)
-        new_user_details = UserDetails(
-            user=self.instance,
-            phone_number=self.validated_data['phone_number'],
-            birth_year=self.validated_data['birth_year'],
-            address=address
-        )
-        new_user_details.save()
-
-        return new_user_details
+# class UserDetailsSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserDetails
+#         fields = '__all__'
+#
+#     def save(self, address, **kwargs):
+#         print('address:', address, 'kwargs:', kwargs)
+#         new_user_details = UserDetails(
+#             user=self.instance,
+#             phone_number=self.validated_data['phone_number'],
+#             birth_year=self.validated_data['birth_year'],
+#             address=address
+#         )
+#         new_user_details.save()
+#
+#         return new_user_details
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -47,4 +48,21 @@ class AddressSerializer(serializers.ModelSerializer):
         return address
 
 
+class UserDetailsSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    address = AddressSerializer()
+
+    class Meta:
+        model = UserDetails
+        fields = ['phone_number', 'birth_year', 'user', 'address']
+
+    def create(self, validated_data):
+        address = validated_data.pop('address')
+        address_obj = Address.objects.create(**address)
+        user = validated_data.pop('user')
+        user_obj = User.objects.create_user(user['email'], email=user['email'], password=user['password'],
+                                            first_name=user['first_name'],
+                                            last_name=user['last_name'])
+        details_obj= UserDetails.objects.create(user=user_obj, address=address_obj, **validated_data)
+        return details_obj
 

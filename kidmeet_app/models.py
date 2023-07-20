@@ -44,6 +44,9 @@ class Child(models.Model):
     child_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=128, db_column="child_name", null=False, blank=False)
     age = models.FloatField()
+    kindergarten = models.CharField(max_length=128, db_column="kindergarten", null=True, blank=True)
+    school = models.CharField(max_length=128, db_column="school", null=True, blank=True)
+    classroom = models.CharField(max_length=128, db_column="classroom", null=True, blank=True)
     interests = models.ManyToManyField('Interests', through='ChildInterests')
     events = models.ManyToManyField('Event', through='ChildEvent')
 
@@ -104,9 +107,8 @@ class ChildInterests(models.Model):
 
 class Schedule(models.Model):
     child = models.ForeignKey(Child, on_delete=models.CASCADE)
-    day_of_week = models.CharField(max_length=50, db_column="weekly_schedule", null=False, blank=False)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
     type_activity = models.CharField(max_length=128, db_column="type_activity", null=False, blank=False)
 
     def __str__(self):
@@ -116,17 +118,8 @@ class Schedule(models.Model):
         db_table = 'schedule'
 
 
-class Friendship(models.Model):
-    kindergarten = models.CharField(max_length=128, db_column="kindergarten", null=True, blank=True)
-    school = models.CharField(max_length=128, db_column="school", null=True, blank=True)
-    classroom = models.CharField(max_length=128, db_column="classroom", null=True, blank=True)
-    child1 = models.ForeignKey(Child, related_name="friendship_child1", on_delete=models.CASCADE)
-    child2 = models.ForeignKey(Child, related_name="friendship_child2", on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"We found a joint membership of {self.child1.name} with {self.child2.name}"
 
-    class Meta:
-        db_table = 'friendship'
+
 
 

@@ -1,12 +1,16 @@
+from datetime import datetime
+
+import django_filters
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from kidmeet_app.models import Child, Event, ChildEvent, Interests, ChildInterests
+from kidmeet_app.models import Child, Event, ChildEvent, Interests, ChildInterests, Schedule
 from kidmeet_app.serializers.children import ChildSerializer, DetailedEventChildSerializer, InterestsSerializer, \
-    ChildInterestsSerializer
+    ChildInterestsSerializer, ScheduleSerializer, AvailableChildSerializer
 
 
 @api_view(['GET'])
@@ -23,73 +27,23 @@ def get_child(request, child_id):
     return Response(data=serializer.data)
 
 
-@api_view(['GET'])
-def get_parents_child(request, child_id):
-    child = get_object_or_404(Child, child_id=child_id)
-    parents = child.childuser_set.all()
-    # serializer =
-    pass
+# @api_view(['GET'])
+# def get_all_children_of_the_same_age():
+#     pass
+
+#
+# @api_view(['GET', 'PUT', 'PATCH'])
+# def get_all_living_area(request):
+#     pass
 
 
-@api_view(['GET'])
-def get_all_children_of_the_same_age(request):
-    pass
+@api_view(['POST'])
+def create_new_child(request):
+    new_child = ChildSerializer(data=request.data)
+    new_child.is_valid(raise_exception=True)
+    new_child.save()
+    return Response(status=status.HTTP_201_CREATED, data=new_child.data)
 
-
-@api_view(['GET', 'PUT', 'PATCH'])
-def get_all_living_area(request):
-    pass
-
-
-# class ChildViewSet(viewsets.ModelViewSet):
-#     queryset = Child.objects.all()
-#     serializer_class = ChildSerializer
-#     # permission_classes = [permissions.IsAuthenticated]
-#
-#
-#     def perform_create(self, serializer):
-#         serializer.save(user=self.request.user)
-#
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.filter_queryset(self.get_queryset())
-#         name = request.query_params.get('name')
-#         age = request.query_params.get('age')
-#
-#         if name:
-#             queryset = queryset.filter(name__iexact=name)
-#         if age:
-#             queryset = queryset.filter(age=age)
-#
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(data=serializer.data)
-
-
-# class EventViewSet(ModelViewSet):
-#     serializer_class = DetailedEventChildSerializer
-#     queryset = Event.objects.all()
-#
-#     def get_queryset(self):
-#         queryset = Event.objects.all()
-#         title = self.request.query_params.get('title')
-#         description = self.request.query_params.get('description')
-#         start_event = self.request.query_params.get('start_event')
-#         end_event = self.request.query_params.get('end_event')
-#         location = self.request.query_params.get('location')
-#
-#         if title:
-#             queryset = queryset.filter(title__iexact='title').values()
-#         if description:
-#             queryset = queryset.filter(description__iexact='description').values()
-#         if start_event:
-#             queryset = queryset.filter(start_event__gte__iexact='start_event').values()
-#         if end_event:
-#             queryset = queryset.filter(end_event__lte__iexact='end_event').values()
-#         if location:
-#             queryset = queryset.filter(location__iexact='location').values()
-#
-#         return queryset
-#         # return queryset.prefetch_related('childevent_set__child')
-#
 
 @api_view(['POST'])
 def create_new_event(request):
@@ -104,7 +58,7 @@ def create_new_event(request):
     except Child.DoesNotExist:
         return Response({'error': f'Child with id {child_id} does not exist'})
 
-    event = Event(title=title, description=description,start_event=start_event,end_event=end_event,location=location)
+    event = Event(title=title, description=description, start_event=start_event, end_event=end_event, location=location)
     event.save()
     serializer = DetailedEventChildSerializer(event)
     child_event = ChildEvent(child_id=child_id, event_id=event.event_id)
@@ -114,13 +68,21 @@ def create_new_event(request):
 
 
 @api_view(['POST'])
+def create_child_schedule(request):
+    new_schedule = ScheduleSerializer(data=request.data)
+    new_schedule.is_valid(raise_exception=True)
+    new_schedule.save()
+    return Response(status=status.HTTP_201_CREATED, data=new_schedule.data)
+
+
+@api_view(['POST'])
 def create_new_interests(request):
     name = request.data.get('name')
     interests = Interests(name=name)
     interests.save()
     serializer = InterestsSerializer(interests)
 
-    return Response(status=status.HTTP_201_CREATED ,data=request.data)
+    return Response(status=status.HTTP_201_CREATED, data=request.data)
 
 
 @api_view(['GET'])
@@ -132,10 +94,12 @@ def get_all_interests(request):
 
 @api_view(['POST', 'PATCH', 'DELETE'])
 def interests_child_handler(request):
-    interest = get_object_or_404(Interests, interest_id=request.POST['interest_id'])
-    if request.method == 'POST':
-        ChildInterests(child_id=request.POST['child_id'], interest_id=interest)
-        ChildInterests.save()
+    interest_id = request.POST.get('interest_id')
+    child_id = request.POST.get('child_id')
+    if request.method == 'POST' and interest_id and child_id:
+        interest = get_object_or_404(Interests, interest_id=interest_id)
+        child_interests = ChildInterests(child_id=child_id, interest_id=interest_id)
+        child_interests.save()
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -165,10 +129,27 @@ def get_event(request, event_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
-def get_specific_interest(request, interest_id):
-    pass
+#
+#
+# def get_friendship(request, ):
+#     pass
 
 
-def get_friendship(request, ):
-    pass
+class ChildFilterSet(django_filters.FilterSet):
+
+    start_time = django_filters.DateTimeFilter(field_name='schedule__start_time', lookup_expr='lte')
+    end_time = django_filters.DateTimeFilter(field_name='schedule__end_time', lookup_expr='gte')
+
+    class Meta:
+        model = Child
+        fields = []
+
+
+@api_view(['GET'])
+def get_available_children(request):
+
+    available_children = Child.objects.all()
+    filter_set = ChildFilterSet(request.GET, queryset=available_children)
+
+    serializer = AvailableChildSerializer(instance=filter_set.qs, many=True)
+    return Response(data=serializer.data)
