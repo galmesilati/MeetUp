@@ -12,24 +12,6 @@ class ParentsSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name']
 
 
-# class UserDetailsSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserDetails
-#         fields = '__all__'
-#
-#     def save(self, address, **kwargs):
-#         print('address:', address, 'kwargs:', kwargs)
-#         new_user_details = UserDetails(
-#             user=self.instance,
-#             phone_number=self.validated_data['phone_number'],
-#             birth_year=self.validated_data['birth_year'],
-#             address=address
-#         )
-#         new_user_details.save()
-#
-#         return new_user_details
-
-
 class AddressSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -63,6 +45,6 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         user_obj = User.objects.create_user(user['email'], email=user['email'], password=user['password'],
                                             first_name=user['first_name'],
                                             last_name=user['last_name'])
-        details_obj= UserDetails.objects.create(user=user_obj, address=address_obj, **validated_data)
+        details_obj = UserDetails.objects.create(user=user_obj, address=address_obj, **validated_data)
         return details_obj
 

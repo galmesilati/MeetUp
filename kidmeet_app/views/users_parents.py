@@ -55,9 +55,6 @@ def get_parent(request, parent_id):
 
 
 
-#  @api_view(['GET', 'PUT', 'DELETE'])
-# def parent_details(request, user_id):
-#     parent = get_object_or_404(User, id=user_id)
 
 
 
