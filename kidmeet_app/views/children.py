@@ -9,8 +9,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from kidmeet_app.models import Child, Event, ChildEvent, Interests, ChildInterests, Schedule
-from kidmeet_app.serializers.children import ChildSerializer, DetailedEventChildSerializer, InterestsSerializer, \
-    ChildInterestsSerializer, ScheduleSerializer, AvailableChildSerializer
+from kidmeet_app.serializers.children import ChildSerializer, InterestsSerializer, \
+    ChildInterestsSerializer, ScheduleSerializer, AvailableChildSerializer, EventSerializer
+from kidmeet_app.views.filters import ChildFilterSet, EventFilterSet
 
 
 @api_view(['GET'])
@@ -25,16 +26,6 @@ def get_child(request, child_id):
     child = get_object_or_404(Child, child_id=child_id)
     serializer = ChildSerializer(instance=child)
     return Response(data=serializer.data)
-
-
-# @api_view(['GET'])
-# def get_all_children_of_the_same_age():
-#     pass
-
-#
-# @api_view(['GET', 'PUT', 'PATCH'])
-# def get_all_living_area(request):
-#     pass
 
 
 @api_view(['POST'])
@@ -129,27 +120,19 @@ def get_event(request, event_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-#
-#
-# def get_friendship(request, ):
-#     pass
+class ChildViewSet(ModelViewSet):
+    serializer_class = ChildSerializer
+    queryset = Child.objects.all()
+    filterset_class = ChildFilterSet
 
 
-class ChildFilterSet(django_filters.FilterSet):
-
-    start_time = django_filters.DateTimeFilter(field_name='schedule__start_time', lookup_expr='lte')
-    end_time = django_filters.DateTimeFilter(field_name='schedule__end_time', lookup_expr='gte')
-
-    class Meta:
-        model = Child
-        fields = []
+class EventViewSet(ModelViewSet):
+    serializer_class = EventSerializer
+    queryset = Event.objects.all()
+    filterset_class = EventFilterSet
 
 
-@api_view(['GET'])
-def get_available_children(request):
 
-    available_children = Child.objects.all()
-    filter_set = ChildFilterSet(request.GET, queryset=available_children)
 
-    serializer = AvailableChildSerializer(instance=filter_set.qs, many=True)
-    return Response(data=serializer.data)
+
+

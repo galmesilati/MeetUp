@@ -1,19 +1,12 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from kidmeet_app.models import Child, Event, Interests, ChildInterests, Schedule
-
-
-# class CreateChildSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Child
-#         fields = ['child_name', 'age']
+from kidmeet_app.models import Child, Event, Interests, ChildInterests, Schedule, ChildEvent
 
 
 class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        # exclude = ['user_id']
         fields = '__all__'
 
 
@@ -23,10 +16,28 @@ class AvailableChildSerializer(serializers.ModelSerializer):
         fields = ['child_id', 'name', 'age', 'interests']
 
 
-class DetailedEventChildSerializer(serializers.ModelSerializer):
+class EventSerializer(serializers.ModelSerializer):
+    child_id = serializers.IntegerField(write_only=True, required=False)
+
     class Meta:
         model = Event
         fields = '__all__'
+
+    def create(self, validated_data):
+        child_id = validated_data.pop('child_id')
+        event = Event.objects.create(**validated_data)
+
+        if child_id:
+            with transaction.atomic():
+                child = Child.objects.get(pk=child_id)
+                ChildEvent.objects.create(child=child, event=event)
+
+            return event
+
+        # def update(self, instance, validated_data):
+        #     previous_event_id = instance.event.event_id
+        #     new_event_id = validated_data['event'].id
+
 
 
 class InterestsSerializer(serializers.ModelSerializer):
@@ -46,27 +57,9 @@ class ScheduleSerializer(serializers.ModelSerializer):
         model = Schedule
         fields = '__all__'
 
-# class UserDetailsSerializer(serializers.ModelSerializer):
-#     user = UserSerializer()
-#     address = AddressSerializer()
-#
-#     class Meta:
-#         model = UserDetails
-#         fields = ['phone_number', 'birth_year', 'user', 'address']
-#
-#     def create(self, validated_data):
-#         address = validated_data.pop('address')
-#         address_obj = Address.objects.create(**address)
-#         user = validated_data.pop('user')
-#         user_obj = User.objects.create_user(user['email'], email=user['email'], password=user['password'],
-#                                             first_name=user['first_name'],
-#                                             last_name=user['last_name'])
-#         details_obj= UserDetails.objects.create(user=user_obj, address=address_obj, **validated_data)
-#         return details_obj
 
 
-# class CreateChildSerializer(serializers.ModelSerializer):
-#
-#     class Meta:
-#         model = Child
-#         fields = ['child_name', 'age']
+
+
+
+

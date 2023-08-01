@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import transaction
 from rest_framework import serializers
 
 from kidmeet_app.models import UserDetails, Address
@@ -39,12 +40,13 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         fields = ['phone_number', 'birth_year', 'user', 'address']
 
     def create(self, validated_data):
-        address = validated_data.pop('address')
-        address_obj = Address.objects.create(**address)
-        user = validated_data.pop('user')
-        user_obj = User.objects.create_user(user['email'], email=user['email'], password=user['password'],
-                                            first_name=user['first_name'],
-                                            last_name=user['last_name'])
-        details_obj = UserDetails.objects.create(user=user_obj, address=address_obj, **validated_data)
-        return details_obj
+        with transaction.atomic():
+            address = validated_data.pop('address')
+            address_obj = Address.objects.create(**address)
+            user = validated_data.pop('user')
+            user_obj = User.objects.create_user(user['email'], email=user['email'], password=user['password'],
+                                                first_name=user['first_name'],
+                                                last_name=user['last_name'])
+            details_obj = UserDetails.objects.create(user=user_obj, address=address_obj, **validated_data)
+            return details_obj
 

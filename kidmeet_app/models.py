@@ -27,7 +27,7 @@ def validate_birth_date(val):
 
 
 class UserDetails(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
     phone_number = models.CharField(max_length=20, db_column="phone_number", null=False, blank=False)
     address = models.ForeignKey(Address, on_delete=models.RESTRICT)
     birth_year = models.IntegerField(db_column='birth_year', null=False, validators=[validate_birth_date])
