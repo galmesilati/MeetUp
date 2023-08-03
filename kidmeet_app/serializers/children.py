@@ -39,11 +39,23 @@ class EventSerializer(serializers.ModelSerializer):
         #     new_event_id = validated_data['event'].id
 
 
-
 class InterestsSerializer(serializers.ModelSerializer):
+    child_id = serializers.IntegerField(write_only=True, required=False)
+
     class Meta:
         model = Interests
         fields = '__all__'
+
+    def create(self, validated_data):
+        child_id = validated_data.pop('child_id')
+        interest = Interests.objects.create(**validated_data)
+
+        if child_id:
+            with transaction.atomic():
+                child = Child.objects.get(pk=child_id)
+                ChildInterests.objects.create(child=child, interest=interest)
+
+        return interest
 
 
 class ChildInterestsSerializer(serializers.ModelSerializer):
