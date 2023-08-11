@@ -11,6 +11,7 @@ class ChildFilterSet(django_filters.FilterSet):
     event_title = django_filters.CharFilter(field_name='events__title', lookup_expr='exact')
     interest_name = django_filters.CharFilter(field_name='interests__name', lookup_expr='exact')
 
+
     def study_filter(self, queryset, name, value):
         queryset = queryset.filter(Q(kindergarten__iexact=value) |
                                    Q(school__iexact=value) |
@@ -23,7 +24,7 @@ class ChildFilterSet(django_filters.FilterSet):
 
 
 class EventFilterSet(django_filters.FilterSet):
-    title = django_filters.CharFilter(lookup_expr='iexact')
+    title = django_filters.CharFilter(lookup_expr='icontains')
     description = django_filters.CharFilter(lookup_expr='icontains')
     location = django_filters.CharFilter(lookup_expr='icontains')
 

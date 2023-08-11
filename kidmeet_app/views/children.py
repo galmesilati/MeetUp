@@ -2,9 +2,11 @@ from datetime import datetime
 
 import django_filters
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -53,12 +55,40 @@ class ChildViewSet(ModelViewSet):
     serializer_class = ChildSerializer
     queryset = Child.objects.all()
     filterset_class = ChildFilterSet
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False)
+    def user_children(self, request):
+        print(request)
+        user = request.user
+        children = Child.objects.filter(user=user)
+        ser = ChildSerializer(children, many=True)
+        return Response(data=ser.data)
+
+    def get_available_children(self):
+        pass
 
 
 class EventViewSet(ModelViewSet):
     serializer_class = EventSerializer
     queryset = Event.objects.all()
     filterset_class = EventFilterSet
+
+    @action(detail=False)
+    def child_events(self, request):
+        user = request.user
+        children = Child.objects.filter(user=user)
+        child_events = Event.objects.filter(childevent__child__in=children)
+        ser = EventSerializer(child_events, many=True)
+        return Response(data=ser.data)
+
+
+@api_view(['GET'])
+def get_title_events(request):
+    all_title = list(Event.objects.order_by().values_list('title').distinct())
+    all_title = [title for sublist in all_title for title in sublist]
+    print(all_title)
+    return JsonResponse(data=list(all_title), safe=False)
 
 
 class InterestViewSet(ModelViewSet):

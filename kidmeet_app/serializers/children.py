@@ -21,7 +21,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = '__all__'
+        fields = ['child_id', 'event_id', 'title', 'description', 'start_event', 'end_event', 'location', 'children']
 
     def create(self, validated_data):
         child_id = validated_data.pop('child_id')

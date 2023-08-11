@@ -3,17 +3,21 @@ from rest_framework.routers import DefaultRouter
 
 from kidmeet_app.views.children import \
     create_new_interests, get_all_interests, create_child_schedule, \
-    ChildViewSet, EventViewSet, InterestViewSet
+    ChildViewSet, EventViewSet, InterestViewSet, get_title_events
 
 router = DefaultRouter()
 router.register('children', ChildViewSet)
 
 router.register('event', EventViewSet)
 
-
 router.register('interest', InterestViewSet)
 
 urlpatterns = router.urls
+
+urlpatterns.extend([
+    path('title-events', get_title_events)
+])
+
 
 # urlpatterns = [
     # path('children/', include(router.urls))

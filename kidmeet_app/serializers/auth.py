@@ -34,9 +34,17 @@ class SignupSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
+    def to_representation(self, instance):
+        user_repr = super().to_representation(instance)
+        user_details = instance.user_details
+        user_repr['address'] = user_details.address.street
+        user_repr['house_number'] = user_details.address.house_number
+        user_repr['phone_number'] = user_details.phone_number
+        return user_repr
+
     class Meta:
         model = User
-        fields = ('email', 'password', 'first_name', 'last_name')
+        fields = ('id', 'email', 'password', 'first_name', 'last_name')
         depth = 1
         extra_kwargs = {
             'password': {

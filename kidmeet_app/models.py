@@ -27,7 +27,7 @@ def validate_birth_date(val):
 
 
 class UserDetails(models.Model):
-    user = models.OneToOneField(User, on_delete=models.PROTECT)
+    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='user_details')
     phone_number = models.CharField(max_length=20, db_column="phone_number", null=False, blank=False)
     address = models.ForeignKey(Address, on_delete=models.RESTRICT)
     birth_year = models.IntegerField(db_column='birth_year', null=False, validators=[validate_birth_date])
@@ -48,7 +48,7 @@ class Child(models.Model):
     school = models.CharField(max_length=128, db_column="school", null=True, blank=True)
     classroom = models.CharField(max_length=128, db_column="classroom", null=True, blank=True)
     interests = models.ManyToManyField('Interests', through='ChildInterests')
-    events = models.ManyToManyField('Event', through='ChildEvent')
+    events = models.ManyToManyField('Event', through='ChildEvent', related_name='children')
 
     def __str__(self):
         return self.name
@@ -64,6 +64,7 @@ class Event(models.Model):
     start_event = models.DateTimeField(db_column="start_event", null=False, blank=False)
     end_event = models.DateTimeField(db_column="end_event", null=False, blank=False)
     location = models.CharField(max_length=128, db_column="location", null=True, blank=True)
+    # children = models.ManyToManyField(Child,)
 
     def __str__(self):
         return self.title

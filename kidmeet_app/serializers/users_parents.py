@@ -24,7 +24,7 @@ class AddressSerializer(serializers.ModelSerializer):
             city=self.validated_data['city'],
             street=self.validated_data['street'],
             house_number=self.validated_data['house_number'],
-            floor_number=self.validated_data['floor_number'],
+            floor_number=self.validated_data.get('floor_number', None),
         )
 
         address.save()
@@ -34,6 +34,18 @@ class AddressSerializer(serializers.ModelSerializer):
 class UserDetailsSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     address = AddressSerializer()
+
+    def to_representation(self, instance):
+        user_repr = super().to_representation(instance)
+        user_data = user_repr['user']
+        address_data = user_repr['address']
+        user_details_data = {
+            'phone_number': instance.phone_number,
+            'birth_year': instance.birth_year
+        }
+        user_data.update(address_data)
+        user_data.update(user_details_data)
+        return user_data
 
     class Meta:
         model = UserDetails

@@ -24,10 +24,7 @@ from kidmeet_app.views.auth import signup, me
 urlpatterns = [
     path('signup/', signup),
     path('me/', me),
-
-
-    # given
-    path('token/', TokenObtainPairView.as_view()),
-    path('token/refresh/', TokenRefreshView.as_view()),
+    path('tokens/', TokenObtainPairView.as_view()),
+    path('tokens/refresh/', TokenRefreshView.as_view()),
 
 ]

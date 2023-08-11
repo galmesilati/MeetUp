@@ -1,14 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from kidmeet_app.views.users_parents import get_all_parents
+from kidmeet_app.views.users_parents import UserViewSet
 
 router = DefaultRouter()
-# router.register('', ParentsViewSet)
+router.register('user', UserViewSet)
 
 urlpatterns = [
     # path('parents/', include(router.urls))
-    path('parents/', get_all_parents)
 ]
 
 # adding parents urls to urlpatterns

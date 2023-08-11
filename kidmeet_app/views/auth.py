@@ -23,4 +23,5 @@ def signup(request):
 def me(request):
     # you will get here only if the user is already authenticated!
     user_serializer = UserSerializer(instance=request.user, many=False)
+    print(request.user)
     return Response(data=user_serializer.data)
