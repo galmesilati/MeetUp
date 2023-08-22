@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q
 
-from kidmeet_app.models import Child, Event
+from kidmeet_app.models import Child, Event, Schedule
 
 
 class ChildFilterSet(django_filters.FilterSet):
@@ -40,4 +40,14 @@ class EventFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Event
+        fields = []
+
+
+class ScheduleFilterSet(django_filters.FilterSet):
+    start_time = django_filters.DateTimeFilter()
+    end_time = django_filters.DateTimeFilter()
+    type_activity = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Schedule
         fields = []

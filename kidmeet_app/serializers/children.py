@@ -9,6 +9,14 @@ class ChildSerializer(serializers.ModelSerializer):
         model = Child
         fields = '__all__'
 
+    def validate(self, attrs):
+        print(attrs)
+        return super().validate(attrs)
+        
+    def create(self, validated_data):
+        print(validated_data)
+        return super(ChildSerializer, self).create(validated_data)
+
 
 class AvailableChildSerializer(serializers.ModelSerializer):
     class Meta:
