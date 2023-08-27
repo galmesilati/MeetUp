@@ -5,8 +5,11 @@ from kidmeet_app.models import Child, Event, Interests, ChildInterests, Schedule
 
 
 class ChildSerializer(serializers.ModelSerializer):
+    interests = serializers.PrimaryKeyRelatedField(many=True, queryset=Interests.objects.all())
+
     class Meta:
         model = Child
+        # fields = ['user', 'name', 'age', 'interests']
         fields = '__all__'
 
     def validate(self, attrs):
@@ -41,10 +44,6 @@ class EventSerializer(serializers.ModelSerializer):
                 ChildEvent.objects.create(child=child, event=event)
 
             return event
-
-        # def update(self, instance, validated_data):
-        #     previous_event_id = instance.event.event_id
-        #     new_event_id = validated_data['event'].id
 
 
 class InterestsSerializer(serializers.ModelSerializer):

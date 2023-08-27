@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from kidmeet_app.serializers.users_parents import upload_profile_img
 from kidmeet_app.views.users_parents import UserViewSet
 
 router = DefaultRouter()
@@ -8,6 +9,7 @@ router.register('user', UserViewSet)
 
 urlpatterns = [
     # path('parents/', include(router.urls))
+    path('profile/img', upload_profile_img)
 ]
 
 # adding parents urls to urlpatterns

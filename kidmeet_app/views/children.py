@@ -55,7 +55,7 @@ class ChildViewSet(ModelViewSet):
     serializer_class = ChildSerializer
     queryset = Child.objects.all()
     filterset_class = ChildFilterSet
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
     def create(self, request, *args, **kwargs):
         return super(ChildViewSet, self).create(request, *args, **kwargs)

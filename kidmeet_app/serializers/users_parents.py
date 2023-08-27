@@ -1,6 +1,13 @@
+import os
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import transaction
+from google.cloud import storage
+from google.oauth2 import service_account
 from rest_framework import serializers
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from kidmeet_app.models import UserDetails, Address
 from kidmeet_app.serializers.auth import UserSerializer
@@ -61,4 +68,24 @@ class UserDetailsSerializer(serializers.ModelSerializer):
                                                 last_name=user['last_name'])
             details_obj = UserDetails.objects.create(user=user_obj, address=address_obj, **validated_data)
             return details_obj
+
+
+@api_view(['POST'])
+def upload_profile_img(request):
+    bucket_name = 'meet-app'
+    file_stream = request.FILES['file'].file
+    _, ext = os.path.splitext(request.FILES['file'].name)
+
+    object_name = f"profile_img_{uuid.uuid4()}{ext}"
+
+    credentials = service_account.Credentials.from_service_account_file(
+        "/Users/gmsyl/OneDrive/שולחן העבודה/meetup-395918-259ba14a84c8.json")
+
+    storage_client = storage.Client(credentials=credentials)
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(object_name)
+    blob.upload_from_file(file_stream)
+
+    return Response()
+
 
