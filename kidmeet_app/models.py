@@ -64,7 +64,6 @@ class Event(models.Model):
     start_event = models.DateTimeField(db_column="start_event", null=False, blank=False)
     end_event = models.DateTimeField(db_column="end_event", null=False, blank=False)
     location = models.CharField(max_length=128, db_column="location", null=True, blank=True)
-    # children = models.ManyToManyField(Child,)
 
     def __str__(self):
         return self.title

@@ -17,8 +17,10 @@ class ChildSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
         
     def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
         print(validated_data)
-        return super(ChildSerializer, self).create(validated_data)
+        return super().create(validated_data)
+        # return super(ChildSerializer, self).create(validated_data)
 
 
 class AvailableChildSerializer(serializers.ModelSerializer):

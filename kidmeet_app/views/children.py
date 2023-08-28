@@ -58,7 +58,15 @@ class ChildViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def create(self, request, *args, **kwargs):
-        return super(ChildViewSet, self).create(request, *args, **kwargs)
+        child_data = request.data.copy()
+        child_data['user'] = request.user.id
+
+        serializer = self.get_serializer(data=child_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,headers=headers)
+        # return super(ChildViewSet, self).create(request, *args, **kwargs)
 
     @action(detail=False)
     def user_children(self, request):
