@@ -88,4 +88,12 @@ def upload_profile_img(request):
 
     return Response()
 
+    # request.user.user_details.img_url = blob.public_url
+    # request.user.user_details.save()
+    #
+    # userSerializer = UserDetailsSerializer(request.user)
+    #
+    # return Response(userSerializer.data)
+
+
 

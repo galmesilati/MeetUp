@@ -19,12 +19,13 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from kidmeet_app import views
-from kidmeet_app.views.auth import signup, me
+from kidmeet_app.views.auth import signup, me, google_login
 
 urlpatterns = [
     path('signup/', signup),
     path('me/', me),
     path('tokens/', TokenObtainPairView.as_view()),
     path('tokens/refresh/', TokenRefreshView.as_view()),
+    path('google-auth', google_login),
 
 ]

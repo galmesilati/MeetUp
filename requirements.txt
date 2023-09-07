@@ -1,9 +1,16 @@
 django
-psycopg2
+# psycopg2
+psycopg2-binary
 djangorestframework
 django-filter
 django-cors-headers
-# djangorestframework-simplejwt
+djangorestframework-simplejwt==5.3.0
 google-cloud-storage
+google-auth
+requests
+gunicorn
+google-cloud-storage
+
+
 
 

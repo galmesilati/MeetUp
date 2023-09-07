@@ -15,7 +15,7 @@ router.register('schedule', ScheduleViewSet)
 urlpatterns = router.urls
 
 urlpatterns.extend([
-    path('title-events', get_title_events)
+    path('title-events', get_title_events),
 ])
 
 

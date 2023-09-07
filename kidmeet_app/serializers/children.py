@@ -31,6 +31,7 @@ class AvailableChildSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     child_id = serializers.IntegerField(write_only=True, required=False)
+    children = serializers.PrimaryKeyRelatedField(many=True, queryset=Child.objects.all(),required=False)
 
     class Meta:
         model = Event

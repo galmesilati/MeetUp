@@ -66,7 +66,6 @@ class ChildViewSet(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED,headers=headers)
-        # return super(ChildViewSet, self).create(request, *args, **kwargs)
 
     @action(detail=False)
     def user_children(self, request):
@@ -87,6 +86,7 @@ class EventViewSet(ModelViewSet):
 
     @action(detail=False)
     def child_events(self, request):
+
         user = request.user
         children = Child.objects.filter(user=user)
         child_events = Event.objects.filter(childevent__child__in=children)

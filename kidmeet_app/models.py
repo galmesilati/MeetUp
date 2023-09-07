@@ -60,7 +60,7 @@ class Child(models.Model):
 class Event(models.Model):
     event_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=128, db_column="title", null=False, blank=False)
-    description = models.TextField(db_column='description', null=True, blank=False)
+    description = models.TextField(db_column='description', null=True, blank=True)
     start_event = models.DateTimeField(db_column="start_event", null=False, blank=False)
     end_event = models.DateTimeField(db_column="end_event", null=False, blank=False)
     location = models.CharField(max_length=128, db_column="location", null=True, blank=True)
