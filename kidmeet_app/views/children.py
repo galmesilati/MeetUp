@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import django_filters
 from django.db.models import Q
@@ -13,42 +13,6 @@ from rest_framework.viewsets import ModelViewSet
 from kidmeet_app.models import Child, Event, ChildEvent, Interests, ChildInterests, Schedule
 from kidmeet_app.serializers.children import ChildSerializer, InterestsSerializer, ScheduleSerializer, EventSerializer
 from kidmeet_app.views.filters import ChildFilterSet, EventFilterSet, ScheduleFilterSet
-
-
-# @api_view(['POST'])
-# def create_child_schedule(request):
-#     new_schedule = ScheduleSerializer(data=request.data)
-#     new_schedule.is_valid(raise_exception=True)
-#     new_schedule.save()
-#     return Response(status=status.HTTP_201_CREATED, data=new_schedule.data)
-
-
-# @api_view(['POST'])
-# def create_new_interests(request):
-#     name = request.data.get('name')
-#     interests = Interests(name=name)
-#     interests.save()
-#     serializer = InterestsSerializer(interests)
-#
-#     return Response(status=status.HTTP_201_CREATED, data=request.data)
-#
-#
-# @api_view(['GET'])
-# def get_all_interests(request):
-#     interests = Interests.objects.all()
-#     serializer = InterestsSerializer(instance=interests, many=True)
-#     return Response(data=serializer.data)
-
-
-# @api_view(['POST', 'PATCH', 'DELETE'])
-# def interests_child_handler(request):
-#     interest_id = request.POST.get('interest_id')
-#     child_id = request.POST.get('child_id')
-#     if request.method == 'POST' and interest_id and child_id:
-#         interest = get_object_or_404(Interests, interest_id=interest_id)
-#         child_interests = ChildInterests(child_id=child_id, interest_id=interest_id)
-#         child_interests.save()
-#         return Response(status=status.HTTP_201_CREATED)
 
 
 class ChildViewSet(ModelViewSet):
@@ -84,12 +48,25 @@ class EventViewSet(ModelViewSet):
     queryset = Event.objects.all()
     filterset_class = EventFilterSet
 
+    @action(detail=False, methods=['POST'])
+    def create_event(self, request):
+        serializer = EventSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=False)
     def child_events(self, request):
+
+        title_to_search = request.GET.get('title')
 
         user = request.user
         children = Child.objects.filter(user=user)
         child_events = Event.objects.filter(childevent__child__in=children)
+        if title_to_search:
+            child_events = child_events.filter(title=title_to_search)
+
         ser = EventSerializer(child_events, many=True)
         return Response(data=ser.data)
 
@@ -121,14 +98,72 @@ class InterestViewSet(ModelViewSet):
 
 class ScheduleViewSet(ModelViewSet):
     queryset = Schedule.objects.all()
+    print('query', queryset)
     serializer_class = ScheduleSerializer
     filterset_class = ScheduleFilterSet
 
-    def child_schedule(self, request):
+    @action(detail=True, methods=['GET'])
+    def child_schedule(self, request, pk=None):
         user = request.user
         children = Child.objects.filter(user=user)
         ser = ChildSerializer(children, many=True)
         return Response(data=ser.data)
+
+    @action(detail=True, methods=['GET'])
+    def view_child_schedule(self, request, pk=None):
+        child_id = pk
+        schedule_data = Schedule.objects.filter(child_id=child_id)
+        serializer = ScheduleSerializer(schedule_data, many=True)
+        return Response(serializer.data)
+
+    # @action(detail=True, methods=['POST'])
+    # def set_regular_activities(self, request, pk=None):
+    #     print('Gal request', request)
+    #     child_id = request.data.get('child_id')
+    #     schedule_data = request.data.get('schedule_data', [])
+    #     update_type = request.data.get('update_type', 'following_weeks')
+    #
+    #
+    #     child = Child.objects.get(pk=child_id)
+    #
+    #     print('child', child)
+    #
+    #     for day in schedule_data:
+    #         start_datetime = datetime.strptime(day.get('start_time'), "%Y-%m-%d %H:%M:%S")
+    #         end_datetime = datetime.strptime(day.get('end_time'), "%Y-%m-%d %H:%M:%S")
+    #
+    #         print('start_time:', start_datetime)
+    #         print('end_time', end_datetime)
+    #
+    #         current_time = start_datetime.replace(hour=start_datetime.hour, minute=start_datetime.minute,
+    #                                               second=start_datetime.second)
+    #
+    #         type_activity = day.get('type_activity')
+    #         print('activity', type_activity)
+    #
+    #         for _ in range(4):
+    #             schedule_data = {
+    #                 'child': child,
+    #                 'start_time': current_time,
+    #                 'end_time': current_time.replace(hour=end_datetime.hour, minute=end_datetime.minute,
+    #                                         second=end_datetime.second),
+    #                 'type_activity': type_activity  # Correct indentation
+    #             }
+    #             Schedule.objects.create(**schedule_data)
+    #             current_time += timedelta(days=7)
+    #
+    #         if update_type == 'current_week':
+    #             break
+    #
+    #     return Response({'message': 'Schedule updated successfully'}, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
 
 
 

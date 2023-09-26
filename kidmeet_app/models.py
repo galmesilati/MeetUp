@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
@@ -110,6 +111,7 @@ class Schedule(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     type_activity = models.CharField(max_length=128, db_column="type_activity", null=False, blank=False)
+
 
     def __str__(self):
         return f"Child: {self.child.name} schedule"

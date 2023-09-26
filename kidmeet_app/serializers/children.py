@@ -30,21 +30,26 @@ class AvailableChildSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
-    child_id = serializers.IntegerField(write_only=True, required=False)
+    # child_id = serializers.IntegerField(write_only=True, required=False)
     children = serializers.PrimaryKeyRelatedField(many=True, queryset=Child.objects.all(),required=False)
 
     class Meta:
         model = Event
-        fields = ['child_id', 'event_id', 'title', 'description', 'start_event', 'end_event', 'location', 'children']
+        fields = ['event_id', 'title', 'description', 'start_event', 'end_event', 'location', 'children']
 
     def create(self, validated_data):
-        child_id = validated_data.pop('child_id')
+        # child_id = validated_data.pop('child_id')
+        children_data = validated_data.pop('children', [])
         event = Event.objects.create(**validated_data)
 
-        if child_id:
-            with transaction.atomic():
-                child = Child.objects.get(pk=child_id)
-                ChildEvent.objects.create(child=child, event=event)
+        for child in children_data:
+            # child = Child.objects.get(pk=child['child_id'])
+            ChildEvent.objects.create(child=child, event=event)
+
+        # if child_id:
+        #     with transaction.atomic():
+        #         child = Child.objects.get(pk=child_id)
+        #         ChildEvent.objects.create(child=child, event=event)
 
             return event
 
