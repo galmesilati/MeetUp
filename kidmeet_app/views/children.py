@@ -1,9 +1,5 @@
 from datetime import datetime, timedelta
-
-import django_filters
-from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, action
 from rest_framework.permissions import IsAuthenticated
@@ -98,7 +94,6 @@ class InterestViewSet(ModelViewSet):
 
 class ScheduleViewSet(ModelViewSet):
     queryset = Schedule.objects.all()
-    print('query', queryset)
     serializer_class = ScheduleSerializer
     filterset_class = ScheduleFilterSet
 
@@ -116,46 +111,48 @@ class ScheduleViewSet(ModelViewSet):
         serializer = ScheduleSerializer(schedule_data, many=True)
         return Response(serializer.data)
 
-    # @action(detail=True, methods=['POST'])
-    # def set_regular_activities(self, request, pk=None):
-    #     print('Gal request', request)
-    #     child_id = request.data.get('child_id')
-    #     schedule_data = request.data.get('schedule_data', [])
-    #     update_type = request.data.get('update_type', 'following_weeks')
-    #
-    #
-    #     child = Child.objects.get(pk=child_id)
-    #
-    #     print('child', child)
-    #
-    #     for day in schedule_data:
-    #         start_datetime = datetime.strptime(day.get('start_time'), "%Y-%m-%d %H:%M:%S")
-    #         end_datetime = datetime.strptime(day.get('end_time'), "%Y-%m-%d %H:%M:%S")
-    #
-    #         print('start_time:', start_datetime)
-    #         print('end_time', end_datetime)
-    #
-    #         current_time = start_datetime.replace(hour=start_datetime.hour, minute=start_datetime.minute,
-    #                                               second=start_datetime.second)
-    #
-    #         type_activity = day.get('type_activity')
-    #         print('activity', type_activity)
-    #
-    #         for _ in range(4):
-    #             schedule_data = {
-    #                 'child': child,
-    #                 'start_time': current_time,
-    #                 'end_time': current_time.replace(hour=end_datetime.hour, minute=end_datetime.minute,
-    #                                         second=end_datetime.second),
-    #                 'type_activity': type_activity  # Correct indentation
-    #             }
-    #             Schedule.objects.create(**schedule_data)
-    #             current_time += timedelta(days=7)
-    #
-    #         if update_type == 'current_week':
-    #             break
-    #
-    #     return Response({'message': 'Schedule updated successfully'}, status=status.HTTP_200_OK)
+    @action(detail=True, methods=['POST'])
+    def set_regular_activities(self, request, pk=None):
+        print('Gal request', request)
+        child_id = request.data.get('child_id')
+        schedule_data = request.data.get('schedule_data', [])
+        update_type = request.data.get('update_type', 'following_weeks')
+        child = Child.objects.get(pk=child_id)
+
+        print('child', child)
+
+        for day in schedule_data:
+            start_datetime = datetime.strptime(day.get('start_time'), "%Y-%m-%d %H:%M:%S")
+            end_datetime = datetime.strptime(day.get('end_time'), "%Y-%m-%d %H:%M:%S")
+
+            print('start_time:', start_datetime)
+            print('end_time', end_datetime)
+
+            type_activity = day.get('type_activity')
+            print('activity', type_activity)
+
+            current_time = start_datetime
+
+            while current_time <= end_datetime:
+                day_of_week = current_time.strftime('%A').lower()
+
+                schedule_data = {
+                    'child': child,
+                    'start_time': current_time,
+                    'end_time': current_time + timedelta(hours=(end_datetime - start_datetime).seconds // 3600),
+                    'type_activity': type_activity,
+                    'day_of_week': day_of_week
+                }
+                Schedule.objects.create(**schedule_data)
+
+                current_time += timedelta(weeks=1)
+
+            if update_type == 'current_week':
+                break
+
+        return Response({'message': 'Schedule updated successfully'}, status=status.HTTP_200_OK)
+
+
 
 
 

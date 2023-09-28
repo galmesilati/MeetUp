@@ -70,30 +70,9 @@ class UserDetailsSerializer(serializers.ModelSerializer):
             return details_obj
 
 
-@api_view(['POST'])
-def upload_profile_img(request):
-    bucket_name = 'meet-app'
-    file_stream = request.FILES['file'].file
-    _, ext = os.path.splitext(request.FILES['file'].name)
 
-    object_name = f"profile_img_{uuid.uuid4()}{ext}"
 
-    credentials = service_account.Credentials.from_service_account_file(
-        "/Users/gmsyl/OneDrive/שולחן העבודה/meetup-395918-259ba14a84c8.json")
 
-    storage_client = storage.Client(credentials=credentials)
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(object_name)
-    blob.upload_from_file(file_stream)
-
-    return Response()
-
-    # request.user.user_details.img_url = blob.public_url
-    # request.user.user_details.save()
-    #
-    # userSerializer = UserDetailsSerializer(request.user)
-    #
-    # return Response(userSerializer.data)
 
 
 

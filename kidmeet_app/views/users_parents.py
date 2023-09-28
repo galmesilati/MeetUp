@@ -1,6 +1,11 @@
+import os
+import uuid
+
 from django.contrib.auth.models import User
+from google.cloud import storage
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from google.oauth2 import service_account
 from rest_framework import mixins, status
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import BasePermission
@@ -21,28 +26,6 @@ class ParentsPermissions(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return view.action == 'retrieve' or obj.created_by == request.user
-
-
-# @api_view(['GET'])
-# def get_all_parents(request):
-#     all_parents = User.objects.all()
-#     serializer = ParentsSerializer(instance=all_parents, many=True)
-#     return Response(data=serializer.data)
-
-
-# @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
-# def get_parent(request, parent_id):
-#     parent = get_object_or_404(User, id=parent_id)
-#     if request.method in ('PUT', 'PATCH'):
-#         serializer = UserSerializer(
-#             instance=parent, data=request.data, partial=request.method == 'PATCH'
-#         )
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response(data=serializer.data)
-#     else:
-#         parent.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserViewSet(ModelViewSet):
@@ -68,6 +51,25 @@ class UserViewSet(ModelViewSet):
         }
 
         return JsonResponse(data)
+
+
+@api_view(['POST'])
+def upload_profile_img(request):
+    bucket_name = 'meet-app'
+    file_stream = request.FILES['file'].file
+    _, ext = os.path.splitext(request.FILES['file'].name)
+
+    object_name = f"profile_img_{uuid.uuid4()}{ext}"
+
+    credentials = service_account.Credentials.from_service_account_file(
+        "/Users/gmsyl/OneDrive/שולחן העבודה/meetup-395918-259ba14a84c8.json")
+
+    storage_client = storage.Client(credentials=credentials)
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(object_name)
+    blob.upload_from_file(file_stream)
+
+    return Response()
 
 
 

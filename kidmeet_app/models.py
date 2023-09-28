@@ -1,6 +1,4 @@
-import datetime
-
-from django.contrib.postgres.fields import ArrayField
+from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
@@ -23,9 +21,8 @@ class Address(models.Model):
 
 # validators
 def validate_birth_date(val):
-    if datetime.datetime.today().year - val < 18:
+    if datetime.today().year - val < 18:
         raise ValidationError("User must be at least 18 years old")
-
 
 class UserDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='user_details')
@@ -111,6 +108,18 @@ class Schedule(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     type_activity = models.CharField(max_length=128, db_column="type_activity", null=False, blank=False)
+
+    DAY_CHOICES = [
+        ('sunday', 'Sunday'),
+        ('monday', 'Monday'),
+        ('tuesday', 'Tuesday'),
+        ('wednesday', 'Wednesday'),
+        ('thursday', 'Thursday'),
+        ('friday', 'Friday'),
+        ('saturday', 'Saturday'),
+    ]
+
+    day_of_week = models.CharField(max_length=10, choices=DAY_CHOICES, default=datetime.now().strftime('%A').lower())
 
 
     def __str__(self):
