@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-i!2#q-^rga#h2h38wvaq2--^fzlvsi+f70uz!l9ulbohb5m6^x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '35.239.247.18', 'kidate-meetup.com']
+ALLOWED_HOSTS = ['127.0.0.1', '35.239.247.18', '35.202.39.150', 'kidate-meetup.com']
+
+# '35.239.247.18'
 
 
 # Application definition
